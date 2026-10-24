@@ -99,8 +99,13 @@ function App() {
       />
 
       <p>{remainingCount} tasks remaining</p>
-      {tasks.length === 0 && (
-        <p>No tasks yet. Add your first Task above!</p>
+      {visibleTasks.length === 0 && (
+        <p>
+          {tasks.length === 0 
+            ? 'No tasks yet. Add your first task above!'
+            : `No ${filter} task.`
+          }
+        </p>
       )}
 
       <div className='task-filters'>
