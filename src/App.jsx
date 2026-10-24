@@ -3,119 +3,121 @@ import heroImg from './assets/hero.png'
 import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import './App.css'
+import TaskItem from './components/TaskItem'
+import TaskForm from './components/TaskForm'
+
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [taskText, setTaskText] = useState('')
+  const [tasks, setTasks] = useState([])
+  const [editingId, setEditingId] = useState(null)
+  const remainingCount = tasks.filter((task)=>!task.completed).length
+  const [filter, setFilter] = useState('all')
+
+  const visibleTasks = tasks.filter((task)=>{
+    if (filter==='active') return !task.completed
+    if (filter==='completed') return task.completed
+    return true
+  })
+
+
+
+
+  function addTask(){
+    if (taskText.trim() === '') return
+
+    const newTask = {
+      id: crypto.randomUUID(),
+      text: taskText.trim(),
+      completed: false
+    }
+    setTasks([...tasks, newTask])
+    setTaskText('')
+  }
+
+  function handleSubmit(event){
+    event.preventDefault()
+    
+
+    if (taskText.trim() === '') return
+
+    if (editingId === null){
+      addTask()
+    } else{
+      setTasks(tasks.map((task)=>{
+        if (task.id === editingId){
+          return {...task,text: taskText.trim()}
+        }
+        return task
+      }))
+      
+      setTaskText('')
+      setEditingId(null)
+
+    }
+  }
+
+  function deleteTask(id){
+    setTasks(tasks.filter((task)=>task.id!==id))
+  }
+
+  function toggleTask(id){
+    setTasks(tasks.map((task)=>{
+      if (task.id===id){
+        return {...task, completed:!task.completed}
+      }
+      return task
+    
+    }))
+  }
+
+  function startEditing(task){
+    setTaskText(task.text)
+    setEditingId(task.id)
+  }
+
+  function cancelEditing(){
+    setTaskText('')
+    setEditingId(null)
+  }
+
+
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <div>
+      <h1> My To-Do List</h1>
+      
+      <TaskForm
+        taskText={taskText}
+        editingId={editingId}
+        onTextChange={setTaskText}
+        onSubmit={handleSubmit}
+        onCancel={cancelEditing}
+      />
 
-      <div className="ticks"></div>
+      <p>{remainingCount} tasks remaining</p>
+      {tasks.length === 0 && (
+        <p>No tasks yet. Add your first Task above!</p>
+      )}
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+      <div>
+        <button type="button" onClick={()=> setFilter('all')}>All</button>
+        <button type="button" onClick={()=> setFilter('active')}>Active</button>
+        <button type="button" onClick={()=> setFilter('completed')}>Completed</button>
+      </div>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+      <ul>
+        {visibleTasks.map((task)=>(
+         <TaskItem
+          key={task.id}
+          task={task}
+          onToggle={toggleTask}
+          onEdit={startEditing}
+          onDelete={deleteTask}
+         />
+        ))}
+      </ul>
+    </div>
   )
 }
 
