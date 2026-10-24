@@ -6,7 +6,7 @@ function TaskForm({
   onCancel
 }) {
   return (
-    <form onSubmit={onSubmit}>
+    <form className="task-form" onSubmit={onSubmit}>
       <input
         type="text"
         aria-label="Task text"

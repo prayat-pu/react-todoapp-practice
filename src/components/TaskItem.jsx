@@ -15,13 +15,15 @@ function TaskItem({task, onToggle, onEdit, onDelete}){
           {task.text}
         </span>
       </label>
-
-      <button type="button" onClick={() => onEdit(task)}>
+    
+    <div className="task-actions">
+        <button type="button" onClick={() => onEdit(task)}>
         Edit
       </button>
       <button type="button" onClick={() => onDelete(task.id)}>
         Delete
       </button>
+    </div>
     </li>
   )
 }

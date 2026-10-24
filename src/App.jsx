@@ -1,7 +1,5 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
+import { useState, useEffect } from 'react'
+
 import './App.css'
 import TaskItem from './components/TaskItem'
 import TaskForm from './components/TaskForm'
@@ -9,7 +7,10 @@ import TaskForm from './components/TaskForm'
 
 function App() {
   const [taskText, setTaskText] = useState('')
-  const [tasks, setTasks] = useState([])
+  const [tasks, setTasks] = useState(()=>{
+    const savedTasks = localStorage.getItem('tasks')
+    return savedTasks? JSON.parse(savedTasks): []
+  })
   const [editingId, setEditingId] = useState(null)
   const remainingCount = tasks.filter((task)=>!task.completed).length
   const [filter, setFilter] = useState('all')
@@ -20,7 +21,9 @@ function App() {
     return true
   })
 
-
+  useEffect(() => {
+  localStorage.setItem('tasks', JSON.stringify(tasks))
+}, [tasks])
 
 
   function addTask(){
@@ -84,7 +87,7 @@ function App() {
 
 
   return (
-    <div>
+    <div className='app'>
       <h1> My To-Do List</h1>
       
       <TaskForm
@@ -100,13 +103,13 @@ function App() {
         <p>No tasks yet. Add your first Task above!</p>
       )}
 
-      <div>
-        <button type="button" onClick={()=> setFilter('all')}>All</button>
-        <button type="button" onClick={()=> setFilter('active')}>Active</button>
-        <button type="button" onClick={()=> setFilter('completed')}>Completed</button>
+      <div className='task-filters'>
+        <button type="button" aria-pressed={filter === 'all'} onClick={()=> setFilter('all')}>All</button>
+        <button type="button" aria-pressed={filter === 'active'} onClick={()=> setFilter('active')}>Active</button>
+        <button type="button" aria-pressed={filter === 'completed'} onClick={()=> setFilter('completed')}>Completed</button>
       </div>
 
-      <ul>
+      <ul className='task-list'>
         {visibleTasks.map((task)=>(
          <TaskItem
           key={task.id}
